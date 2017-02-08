@@ -1,0 +1,5 @@
+ingresando a mediador.php
+conexion establecida...
+ usr = CORTIZ.CR
+ pwd = cortiz
+
