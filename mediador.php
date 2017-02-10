@@ -820,6 +820,49 @@
 					sendResponse(400, "faltan Parametros");
 				}
 				break;
+			case "listGrupsProd":
+				
+				$emp = $_REQUEST["empresa"];
+				$usr = $_REQUEST["user"];
+				
+				
+				$sql = "Select 
+							grupo_descarga, nombre,
+							(
+								Select count(*)
+								from 
+									sqladmin.vc_productor_grupo pg,
+									sqladmin.vc_productor p
+								where pg.empresa = g.empresa
+								and   pg.grupo_descarga = g.grupo_descarga
+								and   p.empresa =  g.empresa
+								and   p.productor = pg.productor
+								and   p.estado <> 3
+							) as cant 
+						from sqladmin.vc_grupo_descarga g
+						where empresa = $emp
+						and   promotor = $usr
+						order by grupo_descarga";
+						
+				$rs = oci_parse($conn, $sql) or die (oci_error($conn));
+				
+				oci_execute($rs);
+				
+				$salida = array ("Datos" => array());
+				
+				while ($row = oci_fetch_array($rs, OCI_NUM))
+				{
+					$dataTemp = array ("grupo" => $row[0], "Nombre" => $row[1], "cant" => $row[2]);
+					
+					array_push($salida["Datos"], $dataTemp);
+				}
+				
+				sendResponse(200, json_encode ($salida));
+				
+				oci_free_statement($rs);
+				
+				
+				break;
 		}
 	}
 	if ( $generalog == 1 )
